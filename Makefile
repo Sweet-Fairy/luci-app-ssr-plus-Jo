@@ -116,7 +116,7 @@ config PACKAGE_$(PKG_NAME)_INCLUDE_v2ray-plugin
 
 config PACKAGE_$(PKG_NAME)_INCLUDE_redsocks2
 	bool "Include redsocks2"
-	default y 
+	default n
 endef
 
 define Package/luci-app-ssr-plus-lean

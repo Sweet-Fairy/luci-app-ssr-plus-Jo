@@ -658,17 +658,18 @@ msgstr "无法访问"
 msgid "Connection Timeout"
 msgstr "连接超时"
 
-msgid "SOCKS5 Proxy Server Settings"
-msgstr "SOCKS5 代理服务端设置"
+msgid "Server failsafe auto swith and custom update settings"
+msgstr "服务器节点故障自动切换/广告屏蔽/国内IP段数据库更新设置"
 
-msgid "Enable SOCKS5 Proxy Server"
-msgstr "启用 SOCKS5 代理服务"
+msgid "Support AdGuardHome and DNSMASQ format list"
+msgstr "同时支持 AdGuard Home 和 DNSMASQ 格式的过滤列表"
 
-msgid "Enable Authentication"
-msgstr "启用 用户名/密码 认证"
+msgid "Enable Custom Chnroute"
+msgstr "自定义国内IP段数据库更新"
 
-msgid "SOCKS5 Proxy Server"
-msgstr "SOCKS5 代理服务端"
+msgid "Chnroute Update url"
+msgstr "国内IP段数据库更新URL"
+
 
 msgid "Game Mode"
 msgstr "游戏模式"

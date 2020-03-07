@@ -173,7 +173,12 @@ m = SimpleForm("Version")
 m.reset = false
 m.submit = false
 
-
+t = m:section(Table, procs, translate("Running Details: ") .. "(/var/etc)")
+t:option(DummyValue, "PID", translate("PID"))
+t:option(DummyValue, "COMMAND", translate("CMD"))
+t:option(DummyValue, "LISTEN", translate("LISTEN"))
+t:option(DummyValue, "%CPU", translate("CPU"))
+t:option(DummyValue, "%MEM", translate("MEM"))
 
 s=m:field(DummyValue,"redir_run",translate("Global Client"))
 s.rawhtml  = true
@@ -266,12 +271,7 @@ s=m:field(DummyValue,"check_port",translate("Check Server Port"))
 s.template = "shadowsocksr/checkport"
 s.value =translate("No Check")
 
-t = m:section(Table, procs, translate("Running Details: ") .. "(/var/etc)")
-t:option(DummyValue, "PID", translate("PID"))
-t:option(DummyValue, "COMMAND", translate("CMD"))
-t:option(DummyValue, "LISTEN", translate("LISTEN"))
-t:option(DummyValue, "%CPU", translate("CPU"))
-t:option(DummyValue, "%MEM", translate("MEM"))
+
 
 
 return m

@@ -237,7 +237,7 @@ luci.http.prepare_content("application/json")
 luci.http.write_json({ ret=retstring ,retcount=icount})
 end
 
-function check_port()
+function check_ports()
 local set=""
 local retstring="<br /><br />"
 local s

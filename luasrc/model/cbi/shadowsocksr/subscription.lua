@@ -13,7 +13,7 @@ local fs  = require "nixio.fs"
 local sys = require "luci.sys"
 
 m = Map(shadowsocksr)
-m:section(SimpleSection).template  = "shadowsocksr/status"
+m:section(SimpleSection).template  = "shadowsocksr/status1"
 -- Server Subscribe
 
 s = m:section(TypedSection, "server_subscribe",  translate("Subscription"))

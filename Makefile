@@ -13,6 +13,7 @@ PKG_CONFIG_DEPENDS:= CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_Shadowsocks \
                  CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_dns2socks \
                  CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_redsocks2 \
                  CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_simple-obfs\
+                 CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_v2ray-plugin \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_ShadowsocksR_Server \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_ShadowsocksR_Socks
 
@@ -54,6 +55,10 @@ config PACKAGE_$(PKG_NAME)_INCLUDE_redsocks2
 config PACKAGE_$(PKG_NAME)_INCLUDE_simple-obfs
 	bool "Include simple-obfsl"
 	default y
+
+config PACKAGE_$(PKG_NAME)_INCLUDE_v2ray-plugin
+	bool "Include v2ray-plugin"
+	default y
 	
 config PACKAGE_$(PKG_NAME)_INCLUDE_ShadowsocksR_Server
 	bool "Include ShadowsocksR Server"
@@ -80,6 +85,7 @@ define Package/luci-app-ssr-plus-lean
             +PACKAGE_$(PKG_NAME)_INCLUDE_dns2socks:dns2socks \
             +PACKAGE_$(PKG_NAME)_INCLUDE_redsocks2:redsocks2 \
              +PACKAGE_$(PKG_NAME)_INCLUDE_simple-obfs:simple-obfs \
+             +PACKAGE_$(PKG_NAME)_INCLUDE_v2ray-plugin:v2ray-plugin \
             +PACKAGE_$(PKG_NAME)_INCLUDE_ShadowsocksR_Server:shadowsocksr-libev-server \
             +PACKAGE_$(PKG_NAME)_INCLUDE_ShadowsocksR_Socks:shadowsocksr-libev-ssr-local
 endef
@@ -122,5 +128,6 @@ exit 0
 endef
 
 $(eval $(call BuildPackage,luci-app-ssr-plus-lean))
+
 
 

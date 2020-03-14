@@ -50,7 +50,7 @@ config PACKAGE_$(PKG_NAME)_INCLUDE_dns2socks
 
 config PACKAGE_$(PKG_NAME)_INCLUDE_redsocks2
 	bool "Include redsocks2"
-	default n
+	default y
 
 config PACKAGE_$(PKG_NAME)_INCLUDE_simple-obfs
 	bool "Include simple-obfsl"

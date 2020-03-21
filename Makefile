@@ -55,7 +55,7 @@ config PACKAGE_$(PKG_NAME)_INCLUDE_redsocks2
 
 config PACKAGE_$(PKG_NAME)_INCLUDE_dnscrypt_proxy
   bool "Include dnscrypt-proxy-full"
-  default y  
+  default   
 
 config PACKAGE_$(PKG_NAME)_INCLUDE_simple-obfs
 	bool "Include simple-obfsl"

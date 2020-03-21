@@ -54,8 +54,8 @@ config PACKAGE_$(PKG_NAME)_INCLUDE_redsocks2
 	default y
 
 config PACKAGE_$(PKG_NAME)_INCLUDE_dnscrypt_proxy
-  bool "Include dnscrypt-proxy-full"
-  default   
+                 bool "Include dnscrypt-proxy-full"
+                 default y
 
 config PACKAGE_$(PKG_NAME)_INCLUDE_simple-obfs
 	bool "Include simple-obfsl"
@@ -134,5 +134,6 @@ exit 0
 endef
 
 $(eval $(call BuildPackage,luci-app-ssr-plus-lean))
+
 
 

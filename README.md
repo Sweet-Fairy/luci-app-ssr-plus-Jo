@@ -18,18 +18,6 @@ Lean's luci-app-ssr-plus source (history):
 ## 说明
    源码来源：https://github.com/coolsnowwolf
 
- 
-## 此为原版ssr-plus修改服务器列表为图标切换/图标检测功能/V2ray分流
-
-#### My other project
-      
-theme : https://github.com/Leo-Jo-My/luci-theme-opentomato
-
-theme : https://github.com/Leo-Jo-My/luci-theme-opentomcat
-
-theme : https://github.com/Leo-Jo-My/luci-theme-Butterfly
-
-### 请配合以上主题使用 兼容所有魔改Argon主题
 
 ## 使用方法
 ```Brach

@@ -10,7 +10,8 @@ function index()
 	entry({"admin", "services", "shadowsocksr"}, alias("admin", "services", "shadowsocksr", "client"),_("ShadowSocksR Plus+"), 10).dependent = true
 	entry({"admin", "services", "shadowsocksr", "client"}, cbi("shadowsocksr/client"),_("SSR Client"), 10).leaf = true
 	entry({"admin", "services", "shadowsocksr", "servers"}, arcombine(cbi("shadowsocksr/servers", {autoapply=true}), cbi("shadowsocksr/client-config")),_("Severs Nodes"), 20).leaf = true
-	entry({"admin", "services", "shadowsocksr", "control"},cbi("shadowsocksr/control"), _("Access Control"), 30).leaf = true
+                 entry({"admin", "services", "shadowsocksr", "subscription"},cbi("shadowsocksr/subscription"),_("Subscription"),30).leaf=true
+	entry({"admin", "services", "shadowsocksr", "control"},cbi("shadowsocksr/control"), _("Access Control"), 40).leaf = true
 	entry({"admin", "services", "shadowsocksr", "advanced"},cbi("shadowsocksr/advanced"),_("Advanced Settings"), 50).leaf = true
 	if nixio.fs.access("/usr/bin/ssr-server") then
 		entry({"admin", "services", "shadowsocksr", "server"},arcombine(cbi("shadowsocksr/server"), cbi("shadowsocksr/server-config")),_("SSR Server"), 60).leaf = true
@@ -31,12 +32,71 @@ function subscribe()
 	luci.http.write_json({ ret = 1 })
 end
 
+
+-- 检测全局服务器状态
 function act_status()
-	local e={}
-	e.running=luci.sys.call("busybox ps -w | grep ssr-retcp | grep -v grep >/dev/null")==0
-	luci.http.prepare_content("application/json")
-	luci.http.write_json(e)
+              math.randomseed(os.time())
+              local e = {}
+-- 全局服务器
+                          e.global=luci.sys.call("ps -w | grep ssr-retcp | grep -v grep >/dev/null") == 0
+
+  -- 检测Socks5
+                          e.socks5 = luci.sys.call("busybox ps -w | grep microsocks | grep -v grep >/dev/null") == 0	         
+--检测chinadns状态
+	          if tonumber(luci.sys.exec("ps -w | grep chinadns |grep -v grep| wc -l"))>0 then
+		        e.chinadns= true
+	          elseif tonumber(luci.sys.exec("ps -w | grep dnsparsing |grep -v grep| wc -l"))>0 then
+	 	        e.chinadns= true
+	          elseif tonumber(luci.sys.exec("ps -w | grep dnscrypt-proxy |grep -v grep| wc -l"))>0 then
+		        e.chinadns= true
+                           elseif tonumber(luci.sys.exec("ps -w | grep pdnsd |grep -v grep| wc -l"))>0 then
+		        e.chinadns= true
+	          elseif tonumber(luci.sys.exec("ps -w | grep dns2socks |grep -v grep| wc -l"))>0 then
+		        e.chinadns= true
+
 end
+--检测服务端状态
+	         if tonumber(luci.sys.exec("ps -w | grep ssr-server |grep -v grep| wc -l"))>0 then
+	         e.server= true
+end
+                         if luci.sys.call("pidof ssr-server >/dev/null") == 0 then
+                         e.ssr_server= true
+end
+ 	        if luci.sys.call("pidof ss-server >/dev/null") == 0 then
+                         e.ss_server= true
+end
+	        if luci.sys.call("ps -w | grep v2ray-server | grep -v grep >/dev/null") == 0 then
+                         e.v2_server= true
+
+end
+   -- 检测国内通道
+                       e.baidu = false
+                       sret = luci.sys.call("/usr/bin/ssr-check www.baidu.com 80 3 1")
+                       if sret == 0 then
+                       e.baidu =  true
+end
+
+    -- 检测国外通道
+                      e.google = false
+                      sret = luci.sys.call("/usr/bin/ssr-check www.google.com 80 3 1")
+                      if sret == 0 then
+                      e.google =  true
+end
+
+
+-- 检测游戏模式状态
+                    e.game = false
+                    if tonumber(luci.sys.exec("ps -w | grep ssr-reudp |grep -v grep| wc -l"))>0 then
+                    e.game= true
+                    else
+                    if tonumber(luci.sys.exec("ps -w | grep ssr-retcp |grep \"\\-u\"|grep -v grep| wc -l"))>0 then
+                    e.game= true
+    end
+    end
+                   luci.http.prepare_content("application/json")
+                   luci.http.write_json(e)
+end
+
 
 function act_ping()
 	local e = {}

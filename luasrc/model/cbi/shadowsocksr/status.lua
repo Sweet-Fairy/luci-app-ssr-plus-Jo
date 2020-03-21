@@ -11,6 +11,7 @@ local tunnel_run=0
 local gfw_count=0
 local ad_count=0
 local ip_count=0
+local dnscrypt_proxy_run=0
 local nfip_count=0
 local uci = luci.model.uci.cursor()
 local shadowsocksr = "shadowsocksr"
@@ -82,6 +83,13 @@ end
 if luci.sys.call("busybox ps -w | grep ssr-tunnel |grep -v grep >/dev/null") == 0 then
 tunnel_run=1
 end
+if luci.sys.call("pidof dnsparsing >/dev/null") == 0 then                 
+dnsforwarder_run=1     
+end
+
+if luci.sys.call("pidof dnscrypt-proxy >/dev/null") == 0 then                 
+dnscrypt_proxy_run=1     
+end
 
 if luci.sys.call("pidof pdnsd >/dev/null") == 0 or (luci.sys.call("busybox ps -w | grep ssr-dns |grep -v grep >/dev/null") == 0 and luci.sys.call("pidof dns2socks >/dev/null") == 0)then
 pdnsd_run=1
@@ -116,7 +124,13 @@ else
 s.value = translate("Not Running")
 end
 end
-
+s=m:field(DummyValue,"dnscrypt_proxy_run",translate("dnscrypt_proxy"))
+s.rawhtml  = true                                              
+if dnscrypt_proxy_run == 1 then                             
+s.value =font_blue .. bold_on .. translate("Running") .. bold_off .. font_off
+else             
+s.value = translate("Not Running")
+end 
 if uci:get_first(shadowsocksr, 'socks5_proxy', 'socks', '0') == '1' then
 if nixio.fs.access("/usr/bin/microsocks") then
 s=m:field(DummyValue,"sock5_run",translate("SOCKS5 Proxy Server"))
@@ -170,17 +184,19 @@ s.rawhtml = true
 s.template = "shadowsocksr/refresh"
 s.value = ip_count .. " " .. translate("Records")
 
+s=m:field(DummyValue,"ad_data",translate("Advertising Data"))
+s.rawhtml = true
+s.template = "shadowsocksr/refresh"
+s .value =tostring(math.ceil(ad_count)) .. " " .. translate("Records")
+
 s=m:field(DummyValue,"nfip_data",translate("Netflix IP Data"))
 s.rawhtml = true
 s.template = "shadowsocksr/refresh"
 s.value = nfip_count .. " " .. translate("Records")
 
-if uci:get_first(shadowsocksr, 'global', 'adblock', '0') == '1' then
-s=m:field(DummyValue,"ad_data",translate("Advertising Data"))
-s.rawhtml = true
-s.template = "shadowsocksr/refresh"
-s.value = ad_count .. " " .. translate("Records")
-end
+
+
+
 
 s=m:field(DummyValue,"check_port",translate("Check Server Port"))
 s.template = "shadowsocksr/checkport"

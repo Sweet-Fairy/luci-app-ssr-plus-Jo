@@ -7,13 +7,14 @@ PKG_RELEASE:=20200321-4
 PKG_CONFIG_DEPENDS:= CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_Shadowsocks \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_V2ray \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_Trojan \
-                 CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_ipt2socks \
-                  CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_microsocks \
+  CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_ipt2socks \
+  CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_microsocks \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_Kcptun \
-                 CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_dns2socks \
-                 CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_redsocks2 \
-                 CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_simple-obfs\
-                 CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_v2ray-plugin \
+  CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_dns2socks \
+  CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_redsocks2 \
+  CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_dnscrypt_proxy \
+  CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_simple-obfs\
+  CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_v2ray-plugin \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_ShadowsocksR_Server \
 	CONFIG_PACKAGE_$(PKG_NAME)_INCLUDE_ShadowsocksR_Socks
 
@@ -52,6 +53,10 @@ config PACKAGE_$(PKG_NAME)_INCLUDE_redsocks2
 	bool "Include redsocks2"
 	default y
 
+config PACKAGE_$(PKG_NAME)_INCLUDE_dnscrypt_proxy
+  bool "Include dnscrypt-proxy-full"
+  default y  
+
 config PACKAGE_$(PKG_NAME)_INCLUDE_simple-obfs
 	bool "Include simple-obfsl"
 	default y
@@ -76,7 +81,7 @@ define Package/luci-app-ssr-plus-lean
 	TITLE:=A New SS/SSR/V2Ray/Trojan LuCI interface
 	PKGARCH:=all
 	DEPENDS:=+shadowsocksr-libev-alt +ipset +ip-full +iptables-mod-tproxy +dnsmasq-full   +coreutils +coreutils-base64 +bash +pdnsd-alt +wget +luasocket +jshn +lua   +curl \
-                +PACKAGE_$(PKG_NAME)_INCLUDE_Shadowsocks:shadowsocks-libev-ss-redir \
+            +PACKAGE_$(PKG_NAME)_INCLUDE_Shadowsocks:shadowsocks-libev-ss-redir \
             +PACKAGE_$(PKG_NAME)_INCLUDE_V2ray:v2ray \
             +PACKAGE_$(PKG_NAME)_INCLUDE_Trojan:trojan \
             +PACKAGE_$(PKG_NAME)_INCLUDE_ipt2socks:ipt2socks \
@@ -84,8 +89,9 @@ define Package/luci-app-ssr-plus-lean
             +PACKAGE_$(PKG_NAME)_INCLUDE_Kcptun:kcptun-client \
             +PACKAGE_$(PKG_NAME)_INCLUDE_dns2socks:dns2socks \
             +PACKAGE_$(PKG_NAME)_INCLUDE_redsocks2:redsocks2 \
-             +PACKAGE_$(PKG_NAME)_INCLUDE_simple-obfs:simple-obfs \
-             +PACKAGE_$(PKG_NAME)_INCLUDE_v2ray-plugin:v2ray-plugin \
+            +PACKAGE_$(PKG_NAME)_INCLUDE_dnscrypt_proxy:dnscrypt-proxy-full \
+            +PACKAGE_$(PKG_NAME)_INCLUDE_simple-obfs:simple-obfs \
+            +PACKAGE_$(PKG_NAME)_INCLUDE_v2ray-plugin:v2ray-plugin \
             +PACKAGE_$(PKG_NAME)_INCLUDE_ShadowsocksR_Server:shadowsocksr-libev-server \
             +PACKAGE_$(PKG_NAME)_INCLUDE_ShadowsocksR_Socks:shadowsocksr-libev-ssr-local
 endef
@@ -128,6 +134,5 @@ exit 0
 endef
 
 $(eval $(call BuildPackage,luci-app-ssr-plus-lean))
-
 
 

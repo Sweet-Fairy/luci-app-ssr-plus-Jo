@@ -13,9 +13,7 @@ function index()
                  entry({"admin", "services", "shadowsocksr", "subscription"},cbi("shadowsocksr/subscription"),_("Subscription"),30).leaf=true
 	entry({"admin", "services", "shadowsocksr", "control"},cbi("shadowsocksr/control"), _("Access Control"), 40).leaf = true
 	entry({"admin", "services", "shadowsocksr", "advanced"},cbi("shadowsocksr/advanced"),_("Advanced Settings"), 50).leaf = true
-	if nixio.fs.access("/usr/bin/ssr-server") then
-		entry({"admin", "services", "shadowsocksr", "server"},arcombine(cbi("shadowsocksr/server"), cbi("shadowsocksr/server-config")),_("SSR Server"), 60).leaf = true
-	end
+	entry({"admin", "services", "shadowsocksr", "server"},arcombine(cbi("shadowsocksr/server"), cbi("shadowsocksr/server-config")),_("SSR Server"), 60).leaf = true
 	entry({"admin", "services", "shadowsocksr", "status"},form("shadowsocksr/status"),_("Status"), 70).leaf = true
 	entry({"admin", "services", "shadowsocksr", "check"}, call("check_status"))
 	entry({"admin", "services", "shadowsocksr", "refresh"}, call("refresh_data"))
@@ -41,7 +39,7 @@ function act_status()
                           e.global=luci.sys.call("ps -w | grep ssr-retcp | grep -v grep >/dev/null") == 0
 
   -- 检测Socks5
-                          e.socks5 = luci.sys.call("busybox ps -w | grep microsocks | grep -v grep >/dev/null") == 0	         
+                          e.socks5 = luci.sys.call("busybox ps -w | grep ssr-local | grep -v grep >/dev/null") == 0	         
 --检测chinadns状态
 	          if tonumber(luci.sys.exec("ps -w | grep chinadns |grep -v grep| wc -l"))>0 then
 		        e.chinadns= true

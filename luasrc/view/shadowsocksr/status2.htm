@@ -185,14 +185,14 @@
         const $$ = document;
 
         function get_state(){
-            $.get('<%=url([[admin]], [[services]], [[shadowsocksr]], [[run]])%>',
+            $.get('<%=url([[admin]], [[vpn]], [[shadowsocksr]], [[run]])%>',
             function (data) {
                 console.log(data);
             }, "json");
         }
         //get_state();
         //<![CDATA[
-        XHR.poll(5, '<%=url([[admin]], [[services]], [[shadowsocksr]], [[run]])%>', null,
+        XHR.poll(5, '<%=url([[admin]], [[vpn]], [[shadowsocksr]], [[run]])%>', null,
             function (x, data) {
                 var tb = document.getElementById('shadowsocksr_status');
                 var tb1 = document.getElementById('google_status');

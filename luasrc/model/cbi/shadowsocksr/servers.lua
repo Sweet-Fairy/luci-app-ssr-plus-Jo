@@ -15,7 +15,7 @@ local sys = require "luci.sys"
 local ucic = luci.model.uci.cursor()
 
 m = Map(shadowsocksr,  translate("Node List"))
-m:section(SimpleSection).template  = "shadowsocksr/status"
+m:section(SimpleSection).template  = "shadowsocksr/status2"
 
 
 -- [[ Servers Manage ]]--

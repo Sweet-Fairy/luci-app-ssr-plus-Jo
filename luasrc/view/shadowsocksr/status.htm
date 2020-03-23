@@ -1,4 +1,5 @@
 
+
 <%
 math.randomseed(os.time())
 -%>
@@ -14,7 +15,7 @@ math.randomseed(os.time())
     <div class="pure-u-1-6">
         <div class="block pure-g">
             <div class="pure-u-3-5">
-                <h4 id="vssr_status"><%:Client%><br /><span class="red"><%:Not Running%></span></h4>
+                <h4 id="shadowsocksr_status"><%:Client%><br /><span class="red"><%:Not Running%></span></h4>
             </div>
             <div class="pure-u-2-5">
                 <div class="img-con">
@@ -92,16 +93,16 @@ math.randomseed(os.time())
 <script>
     const VSSR_ASSETS = '/luci-static/vssr/';
         function get_state(){
-            $.get('<%=url([[admin]], [[vpn]], [[vssr]], [[run]])%>',
+            $.get('<%=url([[admin]], [[services]], [[shadowsocksr]], [[run]])%>',
             function (data) {
                 console.log(data);
             }, "json");
         }
         //get_state();
         //<![CDATA[
-        XHR.poll(5, '<%=url([[admin]], [[vpn]], [[vssr]], [[run]])%>', null,
+        XHR.poll(5, '<%=url([[admin]], [[services]], [[shadowsocksr]], [[run]])%>', null,
             function (x, data) {
-                var tb = document.getElementById('vssr_status');
+                var tb = document.getElementById('shadowsocksr_status');
                 var tb1 = document.getElementById('google_status');
                 var tb2 = document.getElementById('baidu_status');
                 var tb3 = document.getElementById('game_status');

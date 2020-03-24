@@ -108,6 +108,9 @@ function act_ping()
 	e.socket = socket:connect(domain, port)
 	socket:close()
 	e.ping = luci.sys.exec("ping -c 1 -W 1 %q 2>&1 | grep -o 'time=[0-9]*.[0-9]' | awk -F '=' '{print$2}'" % domain)
+	if (e.ping == "") then
+		e.ping = luci.sys.exec(string.format("echo -n $(tcpping -c 1 -i 1 -p %s %s 2>&1 | grep -o 'ttl=[0-9]* time=[0-9]*.[0-9]' | awk -F '=' '{print$3}') 2>/dev/null",port, domain))
+  end
 	if (iret == 0) then
 		luci.sys.call(" ipset del ss_spec_wan_ac " .. domain)
 	end
@@ -128,98 +131,100 @@ function check_status()
 end
 
 function refresh_data()
-	local set =luci.http.formvalue("set")
-	local uci=luci.model.uci.cursor()
-	local icount =0
+	local set = luci.http.formvalue("set")
+	local uci = luci.model.uci.cursor()
+	local icount = 0
 	if set == "gfw_data" then
-		refresh_cmd="wget-ssl --no-check-certificate -O - https://cdn.jsdelivr.net/gh/gfwlist/gfwlist/gfwlist.txt > /tmp/gfw.b64"
-		sret=luci.sys.call(refresh_cmd .. " 2>/dev/null")
+		refresh_cmd = "wget-ssl --no-check-certificate -O- " .. uci:get_first('shadowsocksr', 'global', 'gfwlist_url', 'https://cdn.jsdelivr.net/gh/gfwlist/gfwlist/gfwlist.txt') .. ' > /tmp/gfw.b64'
+		sret = luci.sys.call(refresh_cmd .. " 2>/dev/null")
 		if sret == 0 then
 			luci.sys.call("/usr/bin/ssr-gfw")
-			icount=luci.sys.exec("cat /tmp/gfwnew.txt | wc -l")
+			icount = luci.sys.exec("cat /tmp/gfwnew.txt | wc -l")
 			if tonumber(icount) > 1000 then
-				oldcount= luci.sys.exec("cat /etc/dnsmasq.ssr/gfw_list.conf | wc -l")
+				oldcount = luci.sys.exec("cat /etc/dnsmasq.ssr/gfw_list.conf | wc -l")
 				if tonumber(icount) ~= tonumber(oldcount) then
 					luci.sys.exec("cp -f /tmp/gfwnew.txt /etc/dnsmasq.ssr/gfw_list.conf")
 					luci.sys.exec("cp -f /tmp/gfwnew.txt /tmp/dnsmasq.ssr/gfw_list.conf")
 					luci.sys.call("/etc/init.d/dnsmasq restart")
-					retstring=tostring(tonumber(icount)/2)
+					retstring = tostring(tonumber(icount)/2)
 				else
-					retstring ="0"
+					retstring = "0"
 				end
 			else
-				retstring="-1"
+				retstring = "-1"
 			end
 			luci.sys.exec("rm -f /tmp/gfwnew.txt")
 		else
-			retstring="-1"
+			retstring = "-1"
 		end
-	elseif set == "ip_data" then
-		refresh_cmd="wget-ssl --no-check-certificate -O - " .. uci:get_first('shadowsocksr', 'global', 'chnroute_url', 'https://ispip.clang.cn/all_cn.txt') .. ' > /tmp/china_ssr.txt'
-		sret=luci.sys.call(refresh_cmd .. " 2>/dev/null")
-		icount=luci.sys.exec("cat /tmp/china_ssr.txt | wc -l")
+	end
+	if set == "ip_data" then
+		refresh_cmd = "wget-ssl --no-check-certificate -O- " .. uci:get_first('shadowsocksr', 'global', 'chnroute_url', 'https://ispip.clang.cn/all_cn.txt') .. ' > /tmp/china_ssr.txt'
+		sret = luci.sys.call(refresh_cmd .. " 2>/dev/null")
+		icount = luci.sys.exec("cat /tmp/china_ssr.txt | wc -l")
 		if sret == 0 and tonumber(icount) > 1000 then
-			oldcount=luci.sys.exec("cat /etc/china_ssr.txt | wc -l")
+			oldcount = luci.sys.exec("cat /etc/china_ssr.txt | wc -l")
 			if tonumber(icount) ~= tonumber(oldcount) then
 				luci.sys.exec("cp -f /tmp/china_ssr.txt /etc/china_ssr.txt")
 				luci.sys.exec("/etc/init.d/shadowsocksr restart &")
-				retstring=tostring(tonumber(icount))
+				retstring = tostring(tonumber(icount))
 			else
-				retstring="0"
+				retstring = "0"
 			end
 		else
-			retstring="-1"
+			retstring = "-1"
 		end
 		luci.sys.exec("rm -f /tmp/china_ssr.txt")
-	elseif set == "nfip_data" then
-		refresh_cmd="wget-ssl --no-check-certificate -O - ".. uci:get_first('shadowsocksr', 'global', 'nfip_url','https://raw.githubusercontent.com/QiuSimons/Netflix_IP/master/NF_only.txt') .." > /tmp/netflixip.list"
-		sret=luci.sys.call(refresh_cmd .. " 2>/dev/null")
-		icount=luci.sys.exec("cat /tmp/netflixip.list | wc -l")
+	end
+	if set == "nfip_data" then
+		refresh_cmd = "wget-ssl --no-check-certificate -O- ".. uci:get_first('shadowsocksr', 'global', 'nfip_url','https://raw.githubusercontent.com/QiuSimons/Netflix_IP/master/NF_only.txt') .." > /tmp/netflixip.list"
+		sret = luci.sys.call(refresh_cmd .. " 2>/dev/null")
+		icount = luci.sys.exec("cat /tmp/netflixip.list | wc -l")
 		if sret == 0 and tonumber(icount) > 5 then
-			oldcount=luci.sys.exec("cat /etc/config/netflixip.list | wc -l")
+			oldcount = luci.sys.exec("cat /etc/config/netflixip.list | wc -l")
 			if tonumber(icount) ~= tonumber(oldcount) then
 				luci.sys.exec("cp -f /tmp/netflixip.list /etc/config/netflixip.list")
 				luci.sys.exec("/etc/init.d/shadowsocksr restart &")
-				retstring=tostring(tonumber(icount))
+				retstring = tostring(tonumber(icount))
 			else
-				retstring="0"
+				retstring = "0"
 			end
 		else
-			retstring="-1"
+			retstring = "-1"
 		end
 		luci.sys.exec("rm -f /tmp/netflixip.list")
-	else
-		refresh_cmd="wget-ssl --no-check-certificate -O - ".. uci:get_first('shadowsocksr', 'global', 'adblock_url','https://easylist-downloads.adblockplus.org/easylistchina+easylist.txt') .." > /tmp/adnew.conf"
-		sret=luci.sys.call(refresh_cmd .. " 2>/dev/null")
-		if sret== 0 then
+	end
+	if set == "ad_data" then
+		refresh_cmd = "wget-ssl --no-check-certificate -O- ".. uci:get_first('shadowsocksr', 'global', 'adblock_url','https://easylist-downloads.adblockplus.org/easylistchina+easylist.txt') .." > /tmp/adnew.conf"
+		sret = luci.sys.call(refresh_cmd .. " 2>/dev/null")
+		if sret == 0 then
 			luci.sys.call("/usr/bin/ssr-ad")
-			icount=luci.sys.exec("cat /tmp/ad.conf | wc -l")
+			icount = luci.sys.exec("cat /tmp/ad.conf | wc -l")
 			if tonumber(icount) > 100 then
 				if nixio.fs.access("/etc/dnsmasq.ssr/ad.conf") then
-					oldcount=luci.sys.exec("cat /etc/dnsmasq.ssr/ad.conf | wc -l")
+					oldcount = luci.sys.exec("cat /etc/dnsmasq.ssr/ad.conf | wc -l")
 				else
-					oldcount="0"
+					oldcount = "0"
 				end
 				if tonumber(icount) ~= tonumber(oldcount) then
 					luci.sys.exec("cp -f /tmp/ad.conf /etc/dnsmasq.ssr/ad.conf")
 					luci.sys.exec("cp -f /tmp/ad.conf /tmp/dnsmasq.ssr/ad.conf")
 					luci.sys.call("/etc/init.d/dnsmasq restart")
-					retstring=tostring(tonumber(icount))
+					retstring = tostring(tonumber(icount))
 				else
-					retstring="0"
+					retstring = "0"
 				end
 			else
-				retstring="-1"
+				retstring = "-1"
 			end
 			luci.sys.exec("rm -f /tmp/ad.conf")
 		else
-			retstring="-1"
+			retstring = "-1"
 		end
 	end
 	luci.http.prepare_content("application/json")
-	luci.http.write_json({ret=retstring,retcount=icount})
+	luci.http.write_json({ret = retstring,retcount = icount})
 end
-
 function check_port()
 	local set=""
 	local retstring="<br /><br />"

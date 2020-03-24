@@ -29,7 +29,7 @@ if nixio.fs.access("/etc/china_ssr.txt") then
  ip_count = sys.exec("cat /etc/china_ssr.txt | wc -l")
 end
 
-m = Map(shadowsocksr, translate("ShadowSocksR Plus+ Settings"))
+m = Map(shadowsocksr)
 
 m:section(SimpleSection).template  = "shadowsocksr/status"
 
@@ -50,7 +50,7 @@ end
 table.sort(key_table)
 
 -- [[ Global Setting ]]--
-s = m:section(TypedSection, "global")
+s = m:section(TypedSection, "global", translate("ShadowSocksR Plus+ Settings"))
 s.anonymous = true
 
 o = s:option(ListValue, "global_server", translate("Main Server"))

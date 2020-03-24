@@ -68,21 +68,21 @@ if luci.sys.call("busybox ps -w | grep ssr-retcp | grep -v grep >/dev/null") == 
 redir_run=1
 end
 
-if luci.sys.call("busybox ps -w | grep ssr-local | grep -v grep >/dev/null") == 0 then
+if luci.sys.call("busybox ps -w | grep ssr-local | grep -v ssr-socksdns |grep -v grep >/dev/null") == 0 then
 sock5_run=1
 end
 
 if luci.sys.call("pidof kcptun-client >/dev/null") == 0 then
 kcptun_run=1
 end
-
-if luci.sys.call("pidof ssr-server >/dev/null") == 0 then
+if luci.sys.call("busybox ps -w | grep ssr-server | grep -v grep >/dev/null") == 0 then
 server_run=1
 end
 
 if luci.sys.call("busybox ps -w | grep ssr-tunnel |grep -v grep >/dev/null") == 0 then
 tunnel_run=1
 end
+
 if luci.sys.call("pidof dnsparsing >/dev/null") == 0 then                 
 dnsforwarder_run=1     
 end
@@ -189,10 +189,6 @@ s=m:field(DummyValue,"nfip_data",translate("Netflix IP Data"))
 s.rawhtml = true
 s.template = "shadowsocksr/refresh"
 s.value = nfip_count .. " " .. translate("Records")
-
-
-
-
 
 s=m:field(DummyValue,"check_port",translate("Check Server Port"))
 s.template = "shadowsocksr/checkport"

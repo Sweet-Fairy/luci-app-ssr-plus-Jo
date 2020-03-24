@@ -690,3 +690,7 @@ msgstr "本机服务端"
 
 msgid "Global SOCKS5 Proxy Server"
 msgstr "SOCKS5 代理服务端（全局）"
+
+msgid "gfwlist Update url"
+msgstr "GFWList更新URL"
+

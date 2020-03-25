@@ -65,9 +65,10 @@ o:value("same", translate("Same as Global Server"))
 for _,key in pairs(key_table) do o:value(key,server_table[key]) end
 
 o = s:option(ListValue, "netflix_server", translate("Netflix Node"))
+o:value("nil", translate("Disable"))
 o:value("same", translate("Same as Global Server"))
 for _,key in pairs(key_table) do o:value(key,server_table[key]) end
-o.default = "same"
+o.default = "nil"
 o.rmempty = false
 
 o = s:option(Flag, "netflix_proxy", translate("External Proxy Mode"))

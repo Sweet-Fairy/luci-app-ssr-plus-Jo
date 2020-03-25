@@ -223,12 +223,8 @@ start_rules() {
 	else
 		proxyport="-m multiport --dports 22,53,587,465,995,993,143,80,443"
 	fi
-	if [ "$NETFLIX_SERVER" != "nil" ]; then
-		if [ "$NETFLIX_SERVER" != "$GLOBAL_SERVER" ]; then
-			netflix="1"
-		else
-			netflix="2"
-		fi
+	if [ "$NETFLIX_SERVER" != "$GLOBAL_SERVER" ]; then
+		netflix="1"
 	else
 		netflix="0"
 	fi
@@ -259,6 +255,10 @@ start_pdnsd() {
 	local tcp_dns_list="208.67.222.222, 208.67.220.220"
 	[ -z "$usr_dns" ] && usr_dns="8.8.8.8"
 	[ -z "$usr_port" ] && usr_port="53"
+                 kill $(pidof pdnsd) >/dev/null 2>&1 || killall -9 pdnsd >/dev/null 2>&1
+	kill $(pidof dnsparsing) >/dev/null 2>&1 || killall -9 dnsparsing >/dev/null 2>&1
+	/etc/init.d/dnscrypt-proxy disable	
+	/etc/init.d/dnscrypt-proxy stop
 	[ -d /var/etc ] || mkdir -p /var/etc
 	if [ ! -d /var/pdnsd ]; then
 		mkdir -p /var/pdnsd
@@ -405,7 +405,7 @@ start_redir() {
 		echo "$(date "+%Y-%m-%d %H:%M:%S") Network Tunnel REDIRECT $threads Threads Started!" >>/tmp/ssrplus.log
 	fi
 
-	if [ "$NETFLIX_SERVER" != "nil" ] && [ "$NETFLIX_SERVER" != "$GLOBAL_SERVER" ]; then
+	if [ "$NETFLIX_SERVER" != "$GLOBAL_SERVER" ]; then
 		if [ "$ntype" == "ss" -o "$ntype" == "ssr" ]; then
 			gen_config_file $NETFLIX_SERVER 2 4321
 			gen_config_file $NETFLIX_SERVER 3 1088
@@ -490,6 +490,10 @@ start_redir() {
 		microsocks -i 127.0.0.1 -p 10802 ssr-dns >/dev/null 2>&1 &
 		dns2socks 127.0.0.1:10802 $dnsserver:$dnsport 127.0.0.1:5335 -q >/dev/null 2>&1 &
 		pdnsd_enable_flag=2
+                 elif [ "$ssr_dns" == "3" ]; then
+		dnscrypt_config_file
+		/etc/init.d/dnscrypt-proxy enable && /etc/init.d/dnscrypt-proxy start
+		pdnsd_enable_flag=3
 	fi
 	if [ "$(uci_get_by_type global enable_switch)" == "1" ]; then
 		if [ "$(uci_get_by_name $GLOBAL_SERVER switch_enable 1)" == "1" ]; then
@@ -577,7 +581,7 @@ start_server() {
 }
 
 start_local() {
-	local local_server=$(uci_get_by_type socks5_proxy server nil)
+	local local_server=$(uci_get_by_type socks5_proxy server)
 	[ "$local_server" = "nil" ] && return 1
 	local local_type=$(uci_get_by_name $local_server type)
 	mkdir -p /var/run /var/etc
@@ -622,12 +626,12 @@ start() {
 		GLOBAL_SERVER=$switch_server
 		switch_enable=1
 	fi
-	
-	NETFLIX_SERVER=$(uci_get_by_type global netflix_server nil)
+
+	NETFLIX_SERVER=$(uci_get_by_type global netflix_server same)
 	if [ "$NETFLIX_SERVER" == "same" ]; then
 		NETFLIX_SERVER=$GLOBAL_SERVER
 	fi
-		
+
 	if rules; then
 		start_redir
 		mkdir -p /tmp/dnsmasq.d && cp -a /etc/dnsmasq.ssr /tmp/ && cp -a /etc/dnsmasq.oversea /tmp/
@@ -645,37 +649,29 @@ start() {
 		fi
 		/usr/share/shadowsocksr/gfw2ipset.sh
 
-		if [ "$NETFLIX_SERVER" != "nil" ]; then
-			if [ "$NETFLIX_SERVER" != "$GLOBAL_SERVER" ]; then
-				cat /etc/config/netflix.list | while read line || [ -n "$line" ];
-				do
-					sed -i "/$line/d" /tmp/dnsmasq.ssr/gfw_list.conf
-				done
-				awk '!/^$/&&!/^#/{printf("ipset=/.%s/'"netflix"'\n",$0)}' /etc/config/netflix.list > /tmp/dnsmasq.ssr/netflix_forward.conf
-				awk '!/^$/&&!/^#/{printf("server=/.%s/'"127.0.0.1#5555"'\n",$0)}' /etc/config/netflix.list >> /tmp/dnsmasq.ssr/netflix_forward.conf
+		if [ "$NETFLIX_SERVER" != "$GLOBAL_SERVER" ]; then
+			cat /etc/config/netflix.list | while read line || [ -n "$line" ]; do
+				sed -i "/$line/d" /tmp/dnsmasq.ssr/gfw_list.conf
+			done
+			awk '!/^$/&&!/^#/{printf("ipset=/.%s/'"netflix"'\n",$0)}' /etc/config/netflix.list >/tmp/dnsmasq.ssr/netflix_forward.conf
+			awk '!/^$/&&!/^#/{printf("server=/.%s/'"127.0.0.1#5555"'\n",$0)}' /etc/config/netflix.list >>/tmp/dnsmasq.ssr/netflix_forward.conf
 
-				ipset -N netflix hash:net 2>/dev/null
-				cat /etc/config/netflixip.list | while read nip || [ -n "$nip" ];
-				do
-					ipset add netflix $nip 2>/dev/null
-				done
-			else
-				cat /etc/config/netflix.list | while read line || [ -n "$line" ];
-				do
-					sed -i "/$line/d" /tmp/dnsmasq.ssr/gfw_list.conf
-				done
-				awk '!/^$/&&!/^#/{printf("ipset=/.%s/'"netflix"'\n",$0)}' /etc/config/netflix.list > /tmp/dnsmasq.ssr/netflix_forward.conf
-				awk '!/^$/&&!/^#/{printf("server=/.%s/'"127.0.0.1#5335"'\n",$0)}' /etc/config/netflix.list >> /tmp/dnsmasq.ssr/netflix_forward.conf
-				ipset -N netflix hash:net 2>/dev/null
-				cat /etc/config/netflixip.list | while read nip || [ -n "$nip" ];
-				do
-					ipset add netflix $nip 2>/dev/null
-				done
-			fi
+			ipset -N netflix hash:net 2>/dev/null
+			cat /etc/config/netflixip.list | while read nip || [ -n "$nip" ]; do
+				ipset add netflix $nip 2>/dev/null
+			done
 		else
-			rm -f /tmp/dnsmasq.ssr/netflix_forward.conf
+			cat /etc/config/netflix.list | while read line || [ -n "$line" ]; do
+				sed -i "/$line/d" /tmp/dnsmasq.ssr/gfw_list.conf
+			done
+			awk '!/^$/&&!/^#/{printf("ipset=/.%s/'"netflix"'\n",$0)}' /etc/config/netflix.list >/tmp/dnsmasq.ssr/netflix_forward.conf
+			awk '!/^$/&&!/^#/{printf("server=/.%s/'"127.0.0.1#5335"'\n",$0)}' /etc/config/netflix.list >>/tmp/dnsmasq.ssr/netflix_forward.conf
+			ipset -N netflix hash:net 2>/dev/null
+			cat /etc/config/netflixip.list | while read nip || [ -n "$nip" ]; do
+				ipset add netflix $nip 2>/dev/null
+			done
 		fi
-		
+
 		/etc/init.d/dnsmasq restart >/dev/null 2>&1
 	fi
 	start_server
@@ -738,6 +734,7 @@ stop() {
 	killall -q -9 ss-local
 	killall -q -9 kcptun-client
 	killall -q -9 dns2socks
+                 killall -q -9 dnscrypt-proxy
 	killall -q -9 microsocks
 	killall -q -9 redsocks2
 	if [ -f /var/run/pdnsd.pid ]; then
@@ -751,5 +748,4 @@ stop() {
 	fi
 	del_cron
 }
-
 

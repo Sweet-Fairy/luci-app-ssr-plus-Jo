@@ -745,6 +745,7 @@ stop() {
 	kill -9 $(busybox ps -w | grep ssr-local | grep -v grep | awk '{print $1}') >/dev/null 2>&1
 	killall -q -9 ssr-local
 	killall -q -9 ss-local
+	killall -q -9 dnscrypt-proxy
 	killall -q -9 kcptun-client
 	killall -q -9 dns2socks
 	killall -q -9 microsocks

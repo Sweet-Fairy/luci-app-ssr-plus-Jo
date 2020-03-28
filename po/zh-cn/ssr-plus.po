@@ -694,3 +694,11 @@ msgstr "SOCKS5 代理服务端（全局）"
 msgid "gfwlist Update url"
 msgstr "GFWList更新URL"
 
+msgid "Subscribe Filter Words"
+msgstr "订阅节点关键字过滤"
+
+msgid "Filter Words splited by /"
+msgstr "命中关键字的节点将被丢弃。多个关键字用 / 分隔"
+
+
+

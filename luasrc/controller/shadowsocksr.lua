@@ -296,14 +296,6 @@ function refresh_data()
 end
 
 
-function act_ping()
-	local e={}
-	e.index=luci.http.formvalue("index")
-	e.ping=luci.sys.exec("ping -c 1 -W 1 %q 2>&1 | grep -o 'time=[0-9]*.[0-9]' | awk -F '=' '{print$2}'"%luci.http.formvalue("domain"))
-	luci.http.prepare_content("application/json")
-	luci.http.write_json(e)
-end
-
 function check_ports()
     local set = ""
     local retstring = "<br /><br />"

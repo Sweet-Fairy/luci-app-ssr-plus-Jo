@@ -395,7 +395,8 @@
                         }
                     });
         }
-
+        setTimeout(function () { check(); }, 500); //延迟500MS开始检测
+        $(".cbi-page-actions").hide(); //隐藏底部保存提交按钮
         $(".cbi-button-check").click(function () {
             check();
             return false;

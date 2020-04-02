@@ -18,7 +18,7 @@ uci:foreach("shadowsocksr", "global", function(s) name = s[".name"] end)
 
 m = Map(shadowsocksr)
 
-m:section(SimpleSection).template = "shadowsocksr/status2"
+m:section(SimpleSection).template = "shadowsocksr/status"
 
 -- [[ Servers List ]]--
 s = m:section(TypedSection, "servers")
@@ -56,7 +56,7 @@ if nixio.fs.access("/usr/bin/kcptun-client") then
     function o.cfgvalue(...) return Value.cfgvalue(...) or "?" end
 
 end
-
+m:section(SimpleSection).template  = "vssr/status2"
 
 return m
 

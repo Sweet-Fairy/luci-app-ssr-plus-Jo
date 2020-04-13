@@ -31,7 +31,7 @@ end
 
 m = Map(shadowsocksr)
 
-m:section(SimpleSection).template  = "shadowsocksr/status"
+m:section(SimpleSection).template = "shadowsocksr/status"
 
 local server_table = {}
 uci:foreach(shadowsocksr, "servers", function(s)
@@ -108,7 +108,6 @@ if nixio.fs.access("/usr/bin/dnscrypt-proxy") then
 o:value("3", translate("Use dnscrypt-proxy query and cache"))
 end
 o:value("0", translate("Use Local DNS Service listen port 5335"))
-
 o.default = 1
 
 o = s:option(Value, "tunnel_forward", translate("Anti-pollution DNS Server"))
@@ -151,4 +150,7 @@ o = s:option(Button,"check_port",translate("Check Server Port"))
 o.template = "shadowsocksr/checkport"
 o.value =translate("No Check")
 m:section(SimpleSection).template  = "vssr/status2"
+
 return m
+
+
